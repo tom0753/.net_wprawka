@@ -1,20 +1,18 @@
-using CoursesApp.Models;
 using Microsoft.EntityFrameworkCore;
+using CoursesApp.Models;
 
 namespace CoursesApp.Data;
 
 public class AppDbContext : DbContext
 {
-    // Tabele
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Course> Courses => Set<Course>();
-    public DbSet<Lesson> Lessons => Set<Lesson>();
-    public DbSet<UserCourse> UserCourses => Set<UserCourse>();
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Course> Courses { get; set; } = null!;
+    public DbSet<Lesson> Lessons { get; set; } = null!;
+    public DbSet<UserCourse> UserCourses { get; set; } = null!;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
-    {
-    }
+    public AppDbContext(DbContextOptions<AppDbContext> options) 
+        : base(options) 
+    { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,58 +21,43 @@ public class AppDbContext : DbContext
         // User
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(u => u.Id);
-            entity.Property(u => u.Email)
-                  .IsRequired()
-                  .HasMaxLength(200);
-            entity.Property(u => u.Name)
-                  .IsRequired()
-                  .HasMaxLength(100);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
         });
 
         // Course
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(c => c.Id);
-            entity.Property(c => c.Title)
-                  .IsRequired()
-                  .HasMaxLength(200);
-            entity.Property(c => c.Description)
-                  .HasMaxLength(1000);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.HasMany(e => e.Lessons).WithOne(e => e.Course).HasForeignKey(e => e.CourseId).OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Lesson – relacja 1..N: Course → Lesson
+        // Lesson (1..N z Course)
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(l => l.Id);
-            entity.Property(l => l.Title)
-                  .IsRequired()
-                  .HasMaxLength(200);
-            entity.Property(l => l.Duration)
-                  .IsRequired();
-
-            entity.HasOne(l => l.Course)        // Lesson ma jeden Course
-                  .WithMany(c => c.Lessons)     // Course ma wiele Lessons
-                  .HasForeignKey(l => l.CourseId)
-                  .OnDelete(DeleteBehavior.Cascade); // FK NOT NULL, usuwanie kaskadowe [web:1][web:4]
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Duration).IsRequired();
         });
 
-        // UserCourse – relacja N..M z tabelą pośrednią
+        // UserCourse (N..M)
         modelBuilder.Entity<UserCourse>(entity =>
         {
-            // złożony klucz główny
-            entity.HasKey(uc => new { uc.UserId, uc.CourseId });
+            entity.HasKey(e => new { e.UserId, e.CourseId });
 
-            entity.Property(uc => uc.EnrolledAt)
-                  .IsRequired();
-
-            entity.HasOne(uc => uc.User)
+            entity.HasOne(e => e.User)
                   .WithMany(u => u.UserCourses)
-                  .HasForeignKey(uc => uc.UserId);
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(uc => uc.Course)
+            entity.HasOne(e => e.Course)
                   .WithMany(c => c.UserCourses)
-                  .HasForeignKey(uc => uc.CourseId);
+                  .HasForeignKey(e => e.CourseId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(e => e.EnrolledAt).IsRequired();
         });
     }
 }
