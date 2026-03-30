@@ -1,0 +1,42 @@
+@model CoursesApp.Models.Course
+@{ ViewData["Title"] = Model.Title; }
+
+<h2>@Model.Title</h2>
+<p class="text-muted">@(Model.Description ?? "Brak opisu")</p>
+
+<hr/>
+<h4>Lekcje (@Model.Lessons.Count)</h4>
+
+@if (Model.Lessons.Any())
+{
+    <table class="table table-striped">
+        <thead><tr><th>#</th><th>Tytuł</th><th>Czas (min)</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var lesson in Model.Lessons)
+        {
+            <tr>
+                <td>@lesson.Id</td>
+                <td>@lesson.Title</td>
+                <td>@lesson.DurationMinutes</td>
+                <td>
+                    <form asp-controller="Lessons" asp-action="Delete"
+                          method="post" style="display:inline">
+                        <input type="hidden" name="id" value="@lesson.Id"/>
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Usunąć lekcję?')">Usuń</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Brak lekcji.</p>
+}
+
+<a asp-controller="Lessons" asp-action="Create" asp-route-courseId="@Model.Id"
+   class="btn btn-success">+ Dodaj lekcję</a>
+<a asp-action="Index" class="btn btn-outline-secondary ms-2">← Powrót</a>

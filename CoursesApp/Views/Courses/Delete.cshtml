@@ -1,0 +1,14 @@
+@model CoursesApp.Models.Course
+@{ ViewData["Title"] = "Usuń kurs"; }
+
+<h2>Usuń kurs</h2>
+<div class="alert alert-danger">
+    <strong>Czy na pewno chcesz usunąć kurs „@Model.Title"?</strong><br/>
+    Razem z kursem zostanie usuniętych @Model.Lessons.Count lekcji.
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Tak, usuń</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Anuluj</a>
+</form>

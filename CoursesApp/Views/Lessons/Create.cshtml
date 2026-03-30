@@ -1,0 +1,25 @@
+@model CoursesApp.Models.Lesson
+@{ ViewData["Title"] = "Nowa lekcja"; }
+
+<h2>Nowa lekcja do kursu: <em>@ViewBag.CourseName</em></h2>
+
+<form asp-action="Create" method="post" class="col-md-6">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="CourseId"/>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control"/>
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DurationMinutes" class="form-label"></label>
+        <input asp-for="DurationMinutes" type="number" min="1" class="form-control"/>
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Dodaj lekcję</button>
+    <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.CourseId"
+       class="btn btn-outline-secondary ms-2">Anuluj</a>
+</form>

@@ -1,0 +1,44 @@
+@model IEnumerable<CoursesApp.Models.Course>
+@{ ViewData["Title"] = "Kursy"; }
+
+<h2>Lista kursów</h2>
+
+<form method="get" class="d-flex mb-4 gap-2">
+    <input type="text" name="search" value="@ViewBag.Search"
+           class="form-control" placeholder="Szukaj kursu..."/>
+    <button type="submit" class="btn btn-primary">Szukaj</button>
+    @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+    {
+        <a href="/" class="btn btn-outline-secondary">Wyczyść</a>
+    }
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Brak kursów. <a asp-action="Create">Dodaj pierwszy kurs.</a></div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var course in Model)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@course.Title</h5>
+                    <p class="card-text text-muted">@(course.Description ?? "Brak opisu")</p>
+                    <span class="badge bg-secondary">@course.Lessons.Count lekcji</span>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    <a asp-action="Details" asp-route-id="@course.Id"
+                       class="btn btn-sm btn-info">Szczegóły</a>
+                    <a asp-action="Edit" asp-route-id="@course.Id"
+                       class="btn btn-sm btn-warning">Edytuj</a>
+                    <a asp-action="Delete" asp-route-id="@course.Id"
+                       class="btn btn-sm btn-danger">Usuń</a>
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+}
